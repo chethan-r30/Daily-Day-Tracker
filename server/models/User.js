@@ -10,10 +10,13 @@ const userSchema = new mongoose.Schema({
   gender: { type: String, enum: ['male', 'female', 'other'], default: 'male' }  // ← ADD THIS
 }, { timestamps: true });
 
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
+userSchema.pre('save', async function() {
+  if (!this.isModified('password')) return;
+  try {
+    this.password = await bcrypt.hash(this.password, 12);
+  } catch (error) {
+    throw new Error(`Password hashing failed: ${error.message}`);
+  }
 });
 
 userSchema.methods.matchPassword = async function(enteredPassword) {
