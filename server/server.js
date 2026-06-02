@@ -23,7 +23,7 @@ const path = require('path');
 // Serve React frontend in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
-  app.get('*', (req, res) =>
+  app.get('/{*splat}', (req, res) =>
     res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
   );
 }
