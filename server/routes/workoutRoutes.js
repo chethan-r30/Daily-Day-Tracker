@@ -3,8 +3,11 @@ const router = express.Router();
 const ctrl = require('../controllers/workoutController');
 const { protect } = require('../middleware/auth');
 
-router.use(protect);
+// Public endpoint
 router.post('/bmi', ctrl.getBMISuggestion);
+
+// Protected endpoints
+router.use(protect);
 router.get('/history', ctrl.getWorkoutHistory);     // ← MUST be before /logs/:id
 router.get('/logs/:date', ctrl.getWorkouts);
 router.post('/logs', ctrl.addWorkout);

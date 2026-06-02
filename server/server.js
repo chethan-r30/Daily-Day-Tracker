@@ -50,10 +50,23 @@ app.get('/', (req, res) => res.send('Daily Tracker API is running'));
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
-  app.get('/{*splat}', (req, res) =>
+  app.use((req, res) =>
     res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
   );
 }
+
+// Global error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err.stack || err);
+  const status = err.status || 500;
+  const message = err.message || 'Internal Server Error';
+  res.status(status).json({ message });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
 
 const PORT = process.env.PORT || 5000;
 

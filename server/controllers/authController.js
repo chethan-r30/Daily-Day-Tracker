@@ -5,6 +5,7 @@ const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expires
 
 exports.register = async (req, res) => {
   try {
+    console.log('register invoked', req.body);
     const { name, email, password, gender } = req.body;
     const normalizedEmail = email?.toLowerCase();
     if (!name || !normalizedEmail || !password) {
@@ -16,10 +17,12 @@ exports.register = async (req, res) => {
     const user = await User.create({ name, email: normalizedEmail, password, gender });
     res.status(201).json({ _id: user._id, name: user.name, email: user.email, gender: user.gender, token: generateToken(user._id) });
   } catch (err) {
+    console.error('auth register error', err.stack || err);
     if (err.code === 11000) {
       return res.status(400).json({ message: 'Email already in use' });
     }
     res.status(500).json({ message: err.message });
+    console.log('Registration error:', err);
   }
 };
 
