@@ -18,6 +18,16 @@ app.use('/api/whatsnew', require('./routes/whatsNewRoutes'));
 
 app.get('/', (req, res) => res.send('Daily Tracker API is running'));
 
+const path = require('path');
+
+// Serve React frontend in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')));
+  app.get('*', (req, res) =>
+    res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
+  );
+}
+
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
