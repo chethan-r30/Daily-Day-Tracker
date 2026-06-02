@@ -13,6 +13,7 @@ export default function Navbar() {
     { path: '/activities', label: '✅ Activities' },
     { path: '/workout', label: '💪 Workout' },
     { path: '/study', label: '📚 Study' },
+    { path: '/timetable', label: '🗓️ Timetable' },
     { path: '/whatsnew', label: '✨ What’s New' }
   ];
 
