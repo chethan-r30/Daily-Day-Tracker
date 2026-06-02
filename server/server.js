@@ -10,20 +10,40 @@ const app = express();
 // Body parser
 app.use(express.json());
 
-// ✅ CORS — explicitly allow Render frontend and local dev
+// ✅ CORS — allow Render frontend and local dev with function-based origin check
+const allowedOrigins = [
+  'https://daily-day-tracker-1.onrender.com',
+  'http://localhost:3000'
+];
+
 const corsOptions = {
-  origin: [
-    'https://daily-day-tracker-1.onrender.com',
-    'http://localhost:3000'
-  ],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g., server-to-server, curl)
+    if (!origin) return callback(null, true);
+    const allowed = allowedOrigins.includes(origin);
+    // callback expects (err, allow). Pass null error and boolean allow.
+    return callback(null, allowed);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
-app.use(cors(corsOptions));
+// Simple CORS middleware that sets headers for allowed origins and handles preflight
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  }
 
-// Handle preflight for ALL routes (Express v5 compatible splat path)
-app.options('/{*splat}', cors(corsOptions));
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/activities', require('./routes/activityRoutes'));
