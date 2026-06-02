@@ -56,6 +56,7 @@ export default function Dashboard() {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: { legend: { display: false } },
     scales: { y: { beginAtZero: true, ticks: { font: { size: 11 } } }, x: { ticks: { font: { size: 11 } } } }
   };
@@ -96,35 +97,41 @@ export default function Dashboard() {
       <div className="grid-2" style={{ gap: '20px' }}>
         <div className="card">
           <div className="card-title">✅ Activity Completion (7 days)</div>
-          <Bar data={{
-            labels,
-            datasets: [{ data: activityByDay, backgroundColor: '#01696f', borderRadius: 6 }]
-          }} options={{ ...chartOptions, scales: { ...chartOptions.scales, y: { ...chartOptions.scales.y, max: 100, ticks: { callback: v => v + '%', font: { size: 11 } } } } }} />
+          <div className="chart-box">
+            <Bar data={{
+              labels,
+              datasets: [{ data: activityByDay, backgroundColor: '#01696f', borderRadius: 6 }]
+            }} options={{ ...chartOptions, scales: { ...chartOptions.scales, y: { ...chartOptions.scales.y, max: 100, ticks: { callback: v => v + '%', font: { size: 11 } } } } }} />
+          </div>
         </div>
 
         <div className="card">
           <div className="card-title">💪 Calories Burned (7 days)</div>
-          <Line data={{
-            labels,
-            datasets: [{ data: workoutByDay, borderColor: '#4f98a3', backgroundColor: 'rgba(79,152,163,0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#4f98a3' }]
-          }} options={chartOptions} />
+          <div className="chart-box">
+            <Line data={{
+              labels,
+              datasets: [{ data: workoutByDay, borderColor: '#4f98a3', backgroundColor: 'rgba(79,152,163,0.1)', fill: true, tension: 0.4, pointBackgroundColor: '#4f98a3' }]
+            }} options={chartOptions} />
+          </div>
         </div>
 
         <div className="card">
           <div className="card-title">📚 Study Minutes (7 days)</div>
-          <Bar data={{
-            labels,
-            datasets: [{ data: studyByDay, backgroundColor: '#437a22', borderRadius: 6 }]
-          }} options={chartOptions} />
+          <div className="chart-box">
+            <Bar data={{
+              labels,
+              datasets: [{ data: studyByDay, backgroundColor: '#437a22', borderRadius: 6 }]
+            }} options={chartOptions} />
+          </div>
         </div>
 
         <div className="card">
           <div className="card-title">🎯 7-Day Rating Summary</div>
-          <div style={{ maxWidth: '220px', margin: '0 auto' }}>
+          <div className="chart-box" style={{ minHeight: '220px', maxWidth: '260px', margin: '0 auto' }}>
             <Doughnut data={{
               labels: ['Activities', 'Workout', 'Study'],
               datasets: [{ data: [avgActivity, Math.min(100, workoutPct), studyPct], backgroundColor: ['#01696f', '#4f98a3', '#437a22'], borderWidth: 0, hoverOffset: 6 }]
-            }} options={{ plugins: { legend: { display: true, position: 'bottom' } } }} />
+            }} options={{ maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom' } } }} />
           </div>
           <div style={{ textAlign: 'center', marginTop: '12px' }}>
             <div style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>Overall Score</div>
