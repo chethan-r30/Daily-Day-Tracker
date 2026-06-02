@@ -91,17 +91,27 @@ exports.getWorkoutHistory = async (req, res) => {
 
 exports.getBMISuggestion = async (req, res) => {
   try {
-    const { height, weight, gender } = req.body;
-    const heightM = height / 100;
-    const bmi = parseFloat((weight / (heightM * heightM)).toFixed(1));
+    const { height, weight, gender, age } = req.body;
 
-    // Body fat % estimate using gender-adjusted BMI (Deurenberg formula)
+    // Validate inputs: height in cm and weight in kg are required and must be positive numbers
+    const parsedHeight = parseFloat(height);
+    const parsedWeight = parseFloat(weight);
+    const parsedAge = age ? parseInt(age, 10) : 25; // default age fallback for body-fat estimate
+    if (!parsedHeight || parsedHeight <= 0 || !parsedWeight || parsedWeight <= 0) {
+      return res.status(400).json({ message: 'Invalid height or weight. Provide height (cm) and weight (kg) as positive numbers.' });
+    }
+
+    const heightM = parsedHeight / 100;
+    const bmi = parseFloat((parsedWeight / (heightM * heightM)).toFixed(1));
+
+    // Body fat % estimate using gender-adjusted Deurenberg formula
     let bodyFatPct = null;
     let bodyFatCategory = '';
-    if (gender === 'male') {
-      bodyFatPct = parseFloat((1.20 * bmi + 0.23 * 25 - 16.2).toFixed(1)); // age assumed ~25
-    } else if (gender === 'female') {
-      bodyFatPct = parseFloat((1.20 * bmi + 0.23 * 25 - 5.4).toFixed(1));
+    const g = (gender || '').toLowerCase();
+    if (g === 'male') {
+      bodyFatPct = parseFloat((1.20 * bmi + 0.23 * parsedAge - 16.2).toFixed(1));
+    } else if (g === 'female') {
+      bodyFatPct = parseFloat((1.20 * bmi + 0.23 * parsedAge - 5.4).toFixed(1));
     }
 
     // Gender-specific BMI categories
