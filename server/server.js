@@ -1,66 +1,53 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const connectDB = require('./config/db');
 
 dotenv.config();
 
 const app = express();
 
-// Body parser
-
-
-// ✅ CORS — allow Render frontend and local dev with function-based origin check
 const allowedOrigins = [
   'https://daily-day-tracker-1.onrender.com',
   'http://localhost:3000'
 ];
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (e.g., server-to-server, curl)
+  origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    const allowed = allowedOrigins.includes(origin);
-    // callback expects (err, allow). Pass null error and boolean allow.
-    return callback(null, allowed);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
 };
-// Simple CORS middleware that sets headers for allowed origins and handles preflight
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-  }
 
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
+// CORS FIRST
+app.use(cors(corsOptions));
 
-  next();
-});
+// Preflight for all routes
+app.options(/.*/, cors(corsOptions));
 
+// Parsers after CORS
 app.use(express.json());
 
-app.get('/', (req, res) => res.send('Daily Tracker API is running'));
+// Test route
+app.get('/api/auth/ping', (req, res) => {
+  res.json({ ok: true });
+});
 
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/activities', require('./routes/activityRoutes'));
 app.use('/api/workouts', require('./routes/workoutRoutes'));
 app.use('/api/study', require('./routes/studyRoutes'));
 app.use('/api/timetable', require('./routes/timetableRoutes'));
-app.use('/api/whatsnew', require('./routes/whatsNewRoutes')); 
+app.use('/api/whatsnew', require('./routes/whatsNewRoutes'));
 
+app.get('/', (req, res) => res.send('Daily Tracker API is running'));
 
-
-const path = require('path');
-
-// Serve React frontend in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
   app.get('/{*splat}', (req, res) =>
