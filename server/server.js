@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 
 // Body parser
-app.use(express.json());
+
 
 // ✅ CORS — allow Render frontend and local dev with function-based origin check
 const allowedOrigins = [
@@ -45,6 +45,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(express.json());
+
+app.get('/', (req, res) => res.send('Daily Tracker API is running'));
+
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/activities', require('./routes/activityRoutes'));
 app.use('/api/workouts', require('./routes/workoutRoutes'));
@@ -52,7 +56,7 @@ app.use('/api/study', require('./routes/studyRoutes'));
 app.use('/api/timetable', require('./routes/timetableRoutes'));
 app.use('/api/whatsnew', require('./routes/whatsNewRoutes')); 
 
-app.get('/', (req, res) => res.send('Daily Tracker API is running'));
+
 
 const path = require('path');
 
