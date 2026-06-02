@@ -7,5 +7,6 @@ router.post('/register', register);
 router.post('/login', login);
 router.get('/profile', protect, getProfile);
 router.put('/profile', protect, updateProfile);
+router.get('/ping', (req, res) => res.status(200).json({ status: 'ok' }));
 
 module.exports = router;
