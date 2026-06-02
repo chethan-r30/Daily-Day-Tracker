@@ -6,8 +6,24 @@ const connectDB = require('./config/db');
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+
+// Body parser
 app.use(express.json());
+
+// ✅ CORS — explicitly allow Render frontend and local dev
+const corsOptions = {
+  origin: [
+    'https://daily-day-tracker-1.onrender.com',
+    'http://localhost:3000'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
+
+// Handle preflight for ALL routes (Express v5 compatible splat path)
+app.options('/{*splat}', cors(corsOptions));
 
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/activities', require('./routes/activityRoutes'));
